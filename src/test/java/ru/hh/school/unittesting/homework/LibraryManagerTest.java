@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LibraryManagerTest {
@@ -31,8 +30,9 @@ class LibraryManagerTest {
   @Test
   void borrowBooksShouldReturnFalseIfAccountIsNotActive() {
     when(userService.isUserActive("userId1")).thenReturn(false);
-    doNothing().when(notificationService).notifyUser("userId1", "Your account is not active.");
     boolean bookIsBorrow = libraryManager.borrowBook("bookId1", "userId1");
+    verify(notificationService,times(1)).notifyUser("userId1", "Your account is not active.");
+    verifyNoMoreInteractions(notificationService);
     assertFalse(bookIsBorrow);
   }
 
@@ -95,6 +95,7 @@ class LibraryManagerTest {
       "10, true,false, 7.5",
       "10, false,true, 4",
       "10, true,true, 6",
+      "0,true,true,0"
   })
   void testCalculateDynamicLateFee(int overdueDays, boolean isBestseller,
                                    boolean isPremiumMember, double answer) {
