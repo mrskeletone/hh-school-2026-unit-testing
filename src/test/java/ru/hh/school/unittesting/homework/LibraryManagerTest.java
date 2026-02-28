@@ -47,9 +47,10 @@ class LibraryManagerTest {
   @Test
   void testBorrowBooks() {
     when(userService.isUserActive("userId1")).thenReturn(true);
-    doNothing().when(notificationService).notifyUser("userId1", "You have borrowed the book: bookId1");
     boolean bookIsBorrow = libraryManager.borrowBook("bookId1", "userId1");
     int availableCopies = libraryManager.getAvailableCopies("bookId1");
+    verify(notificationService,times(1)).notifyUser("userId1", "You have borrowed the book: bookId1");
+    verifyNoMoreInteractions(notificationService);
     assertTrue(bookIsBorrow);
     assertEquals(4, availableCopies);
   }
@@ -71,11 +72,11 @@ class LibraryManagerTest {
   @Test
   void testReturnBooks() {
     libraryManager.addBook("bookId1", 1);
-    doNothing().when(notificationService).notifyUser(any(), any());
     when(userService.isUserActive(any())).thenReturn(true);
     libraryManager.borrowBook("bookId1", "userId1");
     boolean returnBooks = libraryManager.returnBook("bookId1", "userId1");
     int availableCopies = libraryManager.getAvailableCopies("bookId1");
+    verify(notificationService,times(1)).notifyUser("userId1", "You have returned the book: bookId1");
     assertTrue(returnBooks);
     assertEquals(6, availableCopies);
   }
